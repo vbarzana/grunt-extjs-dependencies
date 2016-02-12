@@ -371,7 +371,10 @@ exports.init = function (grunt, opts) {
                 if (name.substring(0, ns.length) === ns) {
                     clsName = getClassName(name);
                 } else {
-                    clsName = getClassName(ns + '.' + basePkgName + '.' + name);
+                    clsName = name;
+                    if (name[0] !== name[0].toUpperCase() || name.indexOf('.') === -1) {
+                        clsName = getClassName(ns + '.' + basePkgName + '.' + name);
+                    }
                 }
                 if (clsName) {
                     classNames.push(clsName);
