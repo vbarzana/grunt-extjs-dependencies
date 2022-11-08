@@ -20,57 +20,56 @@
 
 'use strict';
 
-var grunt = require('grunt'),
+let grunt = require('grunt'),
     path = require('path');
 
 exports.extjs_dependencies = {
-  number_of_files: function (test) {
-    test.expect(1);
+    number_of_files: function (test) {
+        test.expect(1);
 
-    var actual = grunt.file.expand('tmp/**/*.js').length,
-        expected = 18;
+        let actual = grunt.file.expand('tmp/**/*.js').length,
+            expected = 18;
 
-    test.equal(actual, expected, 'should have generated ' + expected + ' output files.');
+        test.equal(actual, expected, 'should have generated ' + expected + ' output files.');
 
-    test.done();
-  },
+        test.done();
+    },
 
-  dependency_order: function (test) {
-    test.expect(16);
+    dependency_order: function (test) {
+        test.expect(15);
 
-    var actual = grunt.file.read('tmp/deps').split("\n"),
-        expected = grunt.file.read('test/expected/deps').split("\n");
+        let actual = grunt.file.read('tmp/deps').split("\n"),
+            expected = grunt.file.read('test/expected/deps').replace(/\r/g, '').split("\n");
 
-    actual.forEach(function (actualPath, i) {
-      var expectedPath = expected[i],
-          expectedIndex = actualPath.length - expectedPath.length;
+        actual.forEach(function (actualPath, i) {
+            let expectedPath = expected[i],
+                expectedIndex = actualPath.length - expectedPath.length;
 
-      actualPath = actualPath.replace(new RegExp('\\' + path.sep, 'g'), '/');
+            actualPath = actualPath.replace(new RegExp('\\' + path.sep, 'g'), '/');
+            test.equal(actualPath.indexOf(expectedPath), expectedIndex, 'should output dependencies in correct order.');
+        });
 
-      test.equal(actualPath.indexOf(expectedPath), expectedIndex, 'should output dependencies in correct order.');
-    });
+        test.done();
+    },
 
-    test.done();
-  },
+    strip_requires_and_uses: function (test) {
+        test.expect(30);
+        const mappedFiles = grunt.file.read('test/expected/deps').replace(/\r/g, '').split("\n");
+        let files = mappedFiles.map(function (p) {
+                return 'tmp/' + p;
+            }),
+            requires_rx = /requires:\s*\[?\s*((['"]([\w.*]+)['"]\s*,?\s*)+)\s*\]?,?/m,
+            uses_rx = /uses:\s*\[?\s*((['"]([\w.*]+)['"]\s*,?\s*)+)\s*\]?,?/m;
 
-  strip_requires_and_uses: function (test) {
-    test.expect(32);
+        files.forEach(function (filePath) {
+            let content = grunt.file.read(filePath),
+                actualReq = requires_rx.test(content),
+                actualUse = uses_rx.test(content);
 
-    var files = grunt.file.read('test/expected/deps').split("\n").map(function (p) {
-          return 'tmp/' + p;
-        }),
-        requires_rx = /requires:\s*\[?\s*((['"]([\w.*]+)['"]\s*,?\s*)+)\s*\]?,?/m,
-        uses_rx = /uses:\s*\[?\s*((['"]([\w.*]+)['"]\s*,?\s*)+)\s*\]?,?/m;
+            test.equal(actualReq, false, 'should have removed all "requires: [...]" from ' + filePath);
+            test.equal(actualUse, false, 'should have removed all "uses: [...]" from ' + filePath);
+        });
 
-    files.forEach(function (filePath) {
-      var content = grunt.file.read(filePath),
-          actualReq = requires_rx.test(content),
-          actualUse = uses_rx.test(content);
-
-      test.equal(actualReq, false, 'should have removed all "requires: [...]" from ' + filePath);
-      test.equal(actualUse, false, 'should have removed all "uses: [...]" from ' + filePath);
-    });
-
-    test.done();
-  }
+        test.done();
+    }
 };

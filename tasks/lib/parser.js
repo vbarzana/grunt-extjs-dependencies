@@ -1,5 +1,10 @@
-
 'use strict';
+
+const falafel = require('falafel');
+const array = require('array-extended');
+const path = require('path');
+const trim = require('trim');
+const miniMatcher = require('./minimatcher');
 
 function ExtClass(params) {
     this.names = params.names;
@@ -11,14 +16,7 @@ function ExtClass(params) {
 }
 
 exports.init = function (grunt, opts) {
-    var options,
-        array = require('array-extended'),
-        falafel = require('falafel'),
-        minimatcher = require('./minimatcher'),
-        path = require('path'),
-        trim = require('trim'),
-
-
+    let options,
         DEFINE_RX = /@define\s+([\w.]+)/gm,
 
         EXT_ALTERNATE_CLASS_NAME_RX = /alternateClassName:\s*\[?\s*((['"]([\w.*]+)['"]\s*,?\s*)+)\s*\]?,?/m,
@@ -32,7 +30,7 @@ exports.init = function (grunt, opts) {
         _currentDirPath;
 
     function readOptions(opts) {
-        var options = opts || {};
+        let options = opts || {};
         return {
             excludeClasses: options.excludeClasses,
             skipParse: options.skipParse
@@ -40,7 +38,7 @@ exports.init = function (grunt, opts) {
     }
 
     function parse(src, filePath) {
-        var baseName = path.basename(filePath),
+        let baseName = path.basename(filePath),
             classData, cls;
 
 
@@ -87,14 +85,14 @@ exports.init = function (grunt, opts) {
     }
 
     function getClassData(src) {
-        var output = {
-                classNames: [],
-                parentName: null,
-                dependencies: [],
-                src: src
-            }, ast;
+        let output = {
+            classNames: [],
+            parentName: null,
+            dependencies: [],
+            src: src
+        }, ast;
 
-        ast = falafel(src, { comment: true }, function (node) {
+        ast = falafel(src, {comment: true}, function (node) {
             switch (node.type) {
                 case 'ExpressionStatement':
                     if (isExtMethodCall('define', node)) {
@@ -125,7 +123,7 @@ exports.init = function (grunt, opts) {
     }
 
     function parseDefineCall(node, output) {
-        var m;
+        let m;
         // Get class name from Ext.define('MyApp.pkg.MyClass')
         output.definedName = getDefinedClassName(node);
         output.classNames.push(output.definedName);
@@ -140,9 +138,7 @@ exports.init = function (grunt, opts) {
     }
 
     function parseApplicationCall(node, output) {
-        var p;
-
-        p = getClassDefProperty(node, 'name');
+        let p = getClassDefProperty(node, 'name');
         if (p) {
             output.definedName = getClassName(getPropertyValue(p));
             addClassNames(output.classNames, output.definedName);
@@ -152,7 +148,7 @@ exports.init = function (grunt, opts) {
     }
 
     function collectPropertyValues(prop) {
-        var i = 0,
+        let i = 0,
             el,
             result = [],
             value = prop.value,
@@ -171,7 +167,7 @@ exports.init = function (grunt, opts) {
     }
 
     function getClassDefProperty(node, name) {
-        var arg,
+        let arg,
             obj,
             i,
             prop;
@@ -207,7 +203,7 @@ exports.init = function (grunt, opts) {
     }
 
     function getClassDefValue(node, name, forceArray) {
-        var val = getPropertyValue(getClassDefProperty(node, name));
+        let val = getPropertyValue(getClassDefProperty(node, name));
 
         if (val && forceArray && !Array.isArray(val)) {
             val = [val];
@@ -217,14 +213,14 @@ exports.init = function (grunt, opts) {
     }
 
     function parseClassDefBody(node, output) {
-        var nodeSrc = node.source(),
+        let nodeSrc = node.source(),
             m,
             p,
             c;
         // Parse `extend` annotation
         m = getClassDefValue(node, 'extend');
 
-        if (m && ( c = getClassName(m) )) {
+        if (m && (c = getClassName(m))) {
             output.parentName = c;
         }
 
@@ -282,17 +278,17 @@ exports.init = function (grunt, opts) {
     }
 
     function isExtMethodCall(methodName, node) {
-        var expr = node.expression;
-        return ( expr && expr.type === 'CallExpression' &&
+        let expr = node.expression;
+        return (expr && expr.type === 'CallExpression' &&
             expr.callee &&
             expr.callee.object &&
             expr.callee.object.name === 'Ext' &&
             expr.callee.property &&
-            expr.callee.property.name === methodName );
+            expr.callee.property.name === methodName);
     }
 
     function getDefinedClassName(node) {
-        var clsNameRaw = node.expression.arguments[0].value;
+        let clsNameRaw = node.expression.arguments[0].value;
         if (typeof clsNameRaw === 'string' && clsNameRaw) {
             return getClassName(clsNameRaw);
         } else {
@@ -301,7 +297,7 @@ exports.init = function (grunt, opts) {
     }
 
     function parseComment(node, output) {
-        var m;
+        let m;
         if (node.type === 'Line') {
             m = AT_REQUIRE_RX.exec(node.value);
             if (m && m[1]) {
@@ -329,10 +325,10 @@ exports.init = function (grunt, opts) {
     }
 
     function addClassNames(target, nms) {
-        var names = Array.isArray(nms) ? nms : [nms];
+        let names = Array.isArray(nms) ? nms : [nms];
 
         names.forEach(function (raw) {
-            var name = getClassName(raw);
+            let name = getClassName(raw);
             if (name) {
                 target.push(name);
             }
@@ -340,14 +336,14 @@ exports.init = function (grunt, opts) {
     }
 
     function getClassName(className) {
-        var clsName = trim(className).replace(/'|"/g, '');
+        let clsName = trim(className).replace(/'|"/g, '');
         if (isValidClassName(clsName)) {
             return clsName;
         }
     }
 
     function extrapolateClassNames(basePkgName, baseNms, dependentName) {
-        var doti, ns, baseNames, classNames;
+        let doti, ns, baseNames, classNames;
 
         if (!dependentName) {
             grunt.fail.warn('Cannot extrapolate class name without namespace, in ' + _currentFilePath);
@@ -364,7 +360,7 @@ exports.init = function (grunt, opts) {
         classNames = [];
 
         baseNames.forEach(function (n) {
-            var name = trim(n).replace(/'|"/g, ''),
+            let name = trim(n).replace(/'|"/g, ''),
                 clsName;
 
             if (name) {
@@ -387,14 +383,14 @@ exports.init = function (grunt, opts) {
 
     function shouldParseFile(filePath) {
         if (options.skipParse) {
-            return !minimatcher(filePath, options.skipParse, { matchBase: true });
+            return !miniMatcher(filePath, options.skipParse, {matchBase: true});
         }
         return true;
     }
 
     function isValidClassName(className) {
         if (className && options.excludeClasses) {
-            return !minimatcher(className, options.excludeClasses);
+            return !miniMatcher(className, options.excludeClasses);
         }
         return !!className;
     }

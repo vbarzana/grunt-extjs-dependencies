@@ -1,7 +1,7 @@
 {
   "name": "grunt-extjs-dependencies",
   "description": "Uses static analysis to figure out in what order to load your ExtJs app files.",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "homepage": "https://github.com/cpak/grunt-extjs-dependencies",
   "author": {
     "name": "Christofer",
@@ -22,28 +22,24 @@
   ],
   "main": "Gruntfile.js",
   "engines": {
-    "node": ">= 0.8.0"
+    "node": ">= 10.0.0"
   },
   "scripts": {
     "test": "grunt test"
   },
   "dependencies": {
     "array-extended": "^0.0.11",
-    "concat-stream": "~1.0.1",
-    "falafel": "~0.3.1",
-    "minimatch": "~0.2.14",
-    "promise": "~3.2.0",
-    "tmp": "0.0.21",
-    "trim": "0.0.1"
+    "falafel": "^2.2.5",
+    "minimatch": "^5.1.0",
+    "promise": "^8.3.0",
+    "tmp": "^0.2.1",
+    "trim": "^1.0.1"
   },
   "devDependencies": {
-    "grunt": "~0.4.1",
-    "grunt-contrib-clean": "^0.4.1",
-    "grunt-contrib-jshint": "^0.7.2",
-    "grunt-contrib-nodeunit": "~0.2.0"
-  },
-  "peerDependencies": {
-    "grunt": "~0.4.1"
+    "grunt": "^1.5.3",
+    "grunt-contrib-clean": "^2.0.1",
+    "grunt-contrib-jshint": "^3.2.0",
+    "grunt-contrib-nodeunit": "^4.0.0"
   },
   "keywords": [
     "gruntplugin",
