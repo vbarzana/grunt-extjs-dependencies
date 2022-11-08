@@ -11,6 +11,5 @@ app/controller/MyController.js
 app/ux/UseMe.js
 app/view/Main.js
 app/view/details/Details.js
-vendor/mylib/mylib.js
 app/mixin/MixinC.js
 app/MyApp.js
